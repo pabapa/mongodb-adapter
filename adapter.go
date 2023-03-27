@@ -45,6 +45,8 @@ type CasbinRule struct {
 	V3    string
 	V4    string
 	V5    string
+	V6    string
+	V7    string
 }
 
 // adapter represents the MongoDB adapter for policy storage.
@@ -225,10 +227,14 @@ func (a *adapter) dropTable() error {
 
 func loadPolicyLine(line CasbinRule, model model.Model) error {
 	var p = []string{line.PType,
-		line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
+		line.V0, line.V1, line.V2, line.V3, line.V4, line.V5, line.V6, line.V7}
 	var lineText string
-	if line.V5 != "" {
+	if line.V7 != "" {
 		lineText = strings.Join(p, ", ")
+	} else if line.V6 != "" {
+		lineText = strings.Join(p[:8], ", ")
+	} else if line.V5 != "" {
+		lineText = strings.Join(p[:7], ", ")
 	} else if line.V4 != "" {
 		lineText = strings.Join(p[:6], ", ")
 	} else if line.V3 != "" {
@@ -309,6 +315,12 @@ func savePolicyLine(ptype string, rule []string) CasbinRule {
 	}
 	if len(rule) > 5 {
 		line.V5 = rule[5]
+	}
+	if len(rule) > 6 {
+		line.V6 = rule[6]
+	}
+	if len(rule) > 7 {
+		line.V7 = rule[7]
 	}
 
 	return line
@@ -671,6 +683,12 @@ func (c *CasbinRule) toStringPolicy() []string {
 	}
 	if c.V5 != "" {
 		policy = append(policy, c.V5)
+	}
+	if c.V6 != "" {
+		policy = append(policy, c.V6)
+	}
+	if c.V7 != "" {
+		policy = append(policy, c.V7)
 	}
 	return policy
 }
